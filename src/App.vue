@@ -24,8 +24,43 @@
         </v-container>
     </v-container>
     <v-dialog v-model="dialog" max-width="800">
-      <v-card>
+      <v-card v-if="selected_pokemon">
         <v-container>
+          <v-row class="d-flex align-center">
+            <v-col cols="3">
+              <img width="100%" :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${selected_pokemon.id}.gif`" :alt="selected_pokemon.name"/>
+            </v-col>
+            <v-col cols="6" class="text-center">
+              <h1>{{ get_name(selected_pokemon) }}</h1>
+              <v-chip label class="ml-2" v-for="type in selected_pokemon.types" :key="type.slot">
+                {{ type.type.name }}
+              </v-chip>
+              <v-divider class="my-4"></v-divider>
+              <v-chip label>
+                <span>Altura: {{ selected_pokemon.height * 2.54 }} cm</span>
+              </v-chip>
+              <v-chip label class="ml-2">
+                <span>Peso: {{ (selected_pokemon.weight * 0.453592).toFixed(2) }} kgs</span>
+              </v-chip>
+            </v-col>
+            <v-col cols="3" class="d-flex justify-end">
+              <img width="100%" :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/shiny/${selected_pokemon.id}.gif`" :alt="selected_pokemon.name"/>
+            </v-col>
+            <v-col cols="12" class="d-flex justify-center pt-0">
+              <v-chip label>
+                <span>Vida: {{ selected_pokemon.stats[0].base_stat  }}</span>
+              </v-chip>
+              <v-chip label class="ml-2">
+                <span>Ataque: {{ selected_pokemon.stats[1].base_stat  }}</span>
+              </v-chip>
+              <v-chip label class="ml-2">
+                <span>Defesa: {{ selected_pokemon.stats[2].base_stat  }}</span>
+              </v-chip>
+              <v-chip label class="ml-2">
+                <span>Velocidade: {{ selected_pokemon.stats[5].base_stat  }}</span>
+              </v-chip>
+            </v-col>
+          </v-row>
           {{ selected_pokemon }}
         </v-container>
       </v-card>
