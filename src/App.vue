@@ -24,7 +24,7 @@
         </v-container>
     </v-container>
     <v-dialog v-model="dialog" max-width="800">
-      <v-card v-if="selected_pokemon">
+      <v-card v-if="selected_pokemon" class="px-4">
         <v-container>
           <v-row class="d-flex align-center">
             <v-col cols="3">
@@ -61,7 +61,23 @@
               </v-chip>
             </v-col>
           </v-row>
-          {{ selected_pokemon }}
+          <h2>Moves</h2>
+          <v-simple-table>
+            <template v-slot:default>
+              <thead>
+                <tr>
+                  <th class="text-left">Level</th>
+                  <th class="text-left">Name</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in filter_moves(selected_pokemon)" :key="item.move.name">
+                  <td>0</td>
+                  <td>{{ item.move.name }}</td>
+                </tr>
+              </tbody>
+            </template>
+          </v-simple-table>
         </v-container>
       </v-card>
     </v-dialog>
@@ -103,6 +119,17 @@ export default {
       axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`).then((response) => {
         this.selected_pokemon = response.data;
         this.dialog = !this.dialog;
+      });
+    },
+    filter_moves(pokemon){
+      return pokemon.moves.filter((item) => {
+        let include = false;
+        for(let version of item.version_group_details){
+          if(version.version_group.name == "sword-shield" && version.move_learn_method.name != "machine"){
+            include = true;
+          }
+        }
+        return include;
       });
     }
   },
