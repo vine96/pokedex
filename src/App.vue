@@ -11,7 +11,7 @@
 
           <v-row>
             <v-col cols=2 v-for="pokemon in filtered_pokemons" :key="pokemon.name">
-              <v-card>
+              <v-card @click="show_pokemon(get_id(pokemon))">
                 <v-container>
                   <v-row class="mx-0 d-flex justify-center align-center mt-2">
                     <img width="100%" :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${get_id(pokemon)}.gif`" :alt="pokemon.name"/>
@@ -23,6 +23,14 @@
           </v-row>
         </v-container>
     </v-container>
+    <v-dialog v-model="dialog" max-width="800">
+      <v-card>
+        <v-container>
+          {{ selected_pokemon }}
+        </v-container>
+      </v-card>
+    </v-dialog>
+
   </v-app>
 </template>
 
@@ -37,7 +45,9 @@ export default {
   data() {
     return {
       pokemons: [],
-      search: ""
+      search: "",
+      dialog: false,
+      selected_pokemon: null
     }
   },
 
@@ -53,6 +63,12 @@ export default {
     },
     get_name(pokemon){
       return pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
+    },
+    show_pokemon(id){
+      axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`).then((response) => {
+        this.selected_pokemon = response.data;
+        this.dialog = !this.dialog;
+      });
     }
   },
 
