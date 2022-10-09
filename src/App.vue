@@ -13,10 +13,10 @@
             <v-col cols=2 v-for="pokemon in filtered_pokemons" :key="pokemon.name">
               <v-card>
                 <v-container>
-                  <v-row class="mx-0 d-flex justify-center">
-                    <img width="60%" :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${get_id(pokemon)}.gif`" :alt="pokemon.name"/>
+                  <v-row class="mx-0 d-flex justify-center align-center mt-2">
+                    <img width="100%" :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${get_id(pokemon)}.gif`" :alt="pokemon.name"/>
                   </v-row>
-                  <h2 class="text-center">{{ get_name(pokemon) }}</h2>
+                  <h2 class="text-center mt-3">{{ get_name(pokemon) }}</h2>
                 </v-container>
               </v-card>
             </v-col>
@@ -80,5 +80,15 @@ export default {
   background-size: cover !important;
   background-position: center;
   min-height: 100vh;
+}
+img {
+  max-width:80px;
+  max-height:80px;
+  min-width:80px;
+  min-height:80px;
+}
+.container{
+  min-width: 170px;
+  min-height: 125px;
 }
 </style>
