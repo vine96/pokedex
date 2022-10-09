@@ -1,10 +1,16 @@
 <template>
   <v-app>
     <v-container>
-      <v-card>
         <v-container>
+          <v-text-field 
+          v-model="search"
+          label="Pesquisar"
+          placeholder="Charmander"
+          solo
+          ></v-text-field>
+
           <v-row>
-            <v-col cols=2 v-for="pokemon in pokemons.slice(0, 50)" :key="pokemon.name">
+            <v-col cols=2 v-for="pokemon in filtered_pokemons" :key="pokemon.name">
               <v-card>
                 <v-container>
                   <v-row class="mx-0 d-flex justify-center">
@@ -16,7 +22,6 @@
             </v-col>
           </v-row>
         </v-container>
-      </v-card>
     </v-container>
   </v-app>
 </template>
@@ -31,7 +36,8 @@ export default {
 
   data() {
     return {
-      pokemons: []
+      pokemons: [],
+      search: ""
     }
   },
 
@@ -47,6 +53,14 @@ export default {
     },
     get_name(pokemon){
       return pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
+    }
+  },
+
+  computed: {
+    filtered_pokemons(){
+      return this.pokemons.filter((item) => {
+        return item.name.includes(this.search);
+      });
     }
   }
 };
