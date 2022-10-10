@@ -28,130 +28,136 @@
             </v-row>
 
             <h2 class="mt-4">Stats</h2>
-            <Stats class="mt-2" :pokemon="selected_pokemon" />
 
-            <h2>Moves</h2>
-            <v-expansion-panels class="mb-4">
-                <v-expansion-panel v-for="move_type in ['level-up', 'egg', 'machine', 'tutor']"
-                :key="move_type">
-                </v-expansion-panel>
-                <v-expansion-panel-header>
-                    {{ move_type }}
-                </v-expansion-panel-header>
-                <v-expansion-panel-content>
-                    <v-simple-table>
-                        <template>
-                            <thead>
-                                <tr>
-                                    <th class="text-left">Level</th>
-                                    <th class="text-left">Method</th>
-                                    <th class="text-left">Name</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="move in moves[move_type]" :key="move.name">
-                                    <td>
-                                        <span v-show="move.level != 0">{{ move.level }}</span>
-                                    </td>
-                                    <td><MoveMethodImage :method="move.method"/></td>
-                                    <td>{{ move.name }}</td>
-                                </tr>
-                            </tbody>
-                        </template>
-                    </v-simple-table>
-                </v-expansion-panel-content>
-            </v-expansion-panels>
-            <h2>Evolução</h2>
+        <Stats class="mt-2" :pokemon="selected_pokemon" />
 
-            <EvolutionChain :pokemon="selected_pokemon" />
+        <h2 class="mt-6 mb-4">Moves</h2>
 
+        <v-expansion-panels class="mb-4">
+          <v-expansion-panel
+            v-for="move_type in ['level-up', 'egg', 'machine', 'tutor']"
+            :key="move_type"
+          >
+            <v-expansion-panel-header>
+              {{ move_type }}
+            </v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <v-simple-table>
+                <template>
+                  <thead>
+                    <tr>
+                      <th class="text-left">Level</th>
+                      <th class="text-left">Method</th>
+                      <th class="text-left">Name</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="move in moves[move_type]" :key="move.name">
+                      <td>
+                        <span v-show="move.level != 0">{{ move.level }}</span>
+                      </td>
+                      <td><MoveMethodImage :method="move.method" /></td>
+                      <td>{{ move.name }}</td>
+                    </tr>
+                  </tbody>
+                </template>
+              </v-simple-table>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels>
+
+        <h2>Evolution</h2>
+
+        <EvolutionChain :pokemon="selected_pokemon" />
+        
           </v-container>
         </v-card>
       </v-dialog>
 </template>
 
 <script>
-import PokemonType from "./PokemonType.vue";
-import Stats from "./Stats.vue";
 import MoveMethodImage from "./MoveMethodImage.vue";
 import EvolutionChain from "./EvolutionChain.vue";
+import Stats from "./Stats.vue";
+import PokemonType from "./PokemonType.vue";
 
 export default {
-    components: {
-        PokemonType,
-        Stats,
-        MoveMethodImage,
-        EvolutionChain
+  components: {
+    MoveMethodImage,
+    EvolutionChain,
+    Stats,
+    PokemonType,
+  },
+  props: {
+    show: Boolean,
+    selected_pokemon: Object,
+  },
+  methods: {
+    get_name(pokemon) {
+      return pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
     },
-    props: {
-        show: Boolean,
-        selected_pokemon: Object
+    transform_move_name(name) {
+      let response = "";
+      for (let part of name.split("-")) {
+        response += part.charAt(0).toUpperCase() + part.slice(1) + " ";
+      }
+      return response;
     },
-    methods: {
-        get_name(pokemon){
-            return pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
-        },
-        transform_move_name(name){
-            let response = "";
-            for(let part of name.split("-")){
-                response += part.charAt(0).toUpperCase() + part.slice(1) + " ";
-            }
-            return response;
+  },
+  computed: {
+    moves() {
+      let response = { "level-up": [], egg: [], machine: [], tutor: [] };
+      for (let move of this.selected_pokemon.moves) {
+        for (let details of move.version_group_details) {
+          if (details.version_group.name == "sword-shield") {
+            response[details.move_learn_method.name].push({
+              level: details.level_learned_at,
+              method: details.move_learn_method.name,
+              name: this.transform_move_name(move.move.name),
+            });
+            break;
+          }
         }
-    },
-    computed: {
-        moves(){
-            let response = {"level-up": [], egg: [], machine: [], tutor: []};
-            for(let move of this.selected_pokemon.moves){
-                for(let details of move.version_group_details){
-                    if(details.version_group.name == "sword-shield"){
-                        response[details.move_learn_method.name].push({
-                            level: details.level_learned_at,
-                            method: details.move_learn_method.name,
-                            name: this.transform_move_name(move.move.name)
-                        });
-                        break;
-                    }
-                }
+      }
+
+      for (let move_type in response) {
+        response[move_type].sort((a, b) => {
+          let level_a = a.level;
+          let level_b = b.level;
+
+          if (level_a == 0) {
+            level_a = 1000;
+          }
+
+          if (level_b == 0) {
+            level_b = 1000;
+          }
+
+          if (level_a != level_b) {
+            if (level_a < level_b) {
+              return -1;
+            } else {
+              return 1;
             }
-
-            for(let move_type in response){
-                response[move_type].sort((a, b) => {
-                    let level_a = a.level;
-                    let level_b = b.level;
-
-                    if(level_a == 0){
-                        level_a = 1000;
-                    }
-
-                    if(level_b == 0){
-                        level_b = 1000;
-                    }
-
-                    if(level_a != level_b){
-                        if(level_a < level_b){
-                            return -1;
-                        }else{
-                            return 1;
-                        }
-                    }else{
-                        if(a.method < b.method){
-                            return -1;
-                        }else{
-                            return 1;
-                        }
-                    }
-                });
+          } else {
+            if (a.method < b.method) {
+              return -1;
+            } else {
+              return 1;
             }
-            return response;
-        },
+          }
+        });
+      }
+
+      return response;
     },
-    watch: {
-        show(){
-            this.$emit("update:show", this.show);
-        }
-    }
-}
+  },
+  watch: {
+    show() {
+      this.$emit("update:show", this.show);
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped></style>
