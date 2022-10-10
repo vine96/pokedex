@@ -91,6 +91,9 @@
                 </tbody>
               </template>
             </v-simple-table> -->
+
+            <h2>Evolução</h2>
+            
           </v-container>
         </v-card>
       </v-dialog>
@@ -103,10 +106,10 @@ import MoveMethodImage from "./MoveMethodImage.vue";
 
 export default{
     components:{
-    PokemonType,
-    Stats,
-    MoveMethodImage
-},
+        PokemonType,
+        Stats,
+        MoveMethodImage
+    },
     props:{
         show: Boolean,
         selected_pokemon: Object
