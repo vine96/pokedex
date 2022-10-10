@@ -35,23 +35,26 @@
         </v-container>
     </v-container>
 
+    <PokemonInfoDialog :show.sync="show_dialog" :selected_pokemon="selected_pokemon"/>
+
   </v-app>
 </template>
 
 <script>
 import axios from 'axios';
 import PokemonCard from './components/PokemonCard.vue';
+import PokemonInfoDialog from './components/PokemonInfoDialog.vue';
 
 export default {
   name: 'App',
 
-  components: { PokemonCard },
+  components: { PokemonCard, PokemonInfoDialog },
 
   data() {
     return {
       pokemons: [],
       search: "",
-      dialog: false,
+      show_dialog: false,
       selected_pokemon: null
     }
   },
@@ -63,6 +66,12 @@ export default {
   },
 
   methods: {
+    show_pokemon(id) {
+      axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`).then((response) => {
+        this.selected_pokemon = response.data;
+        this.show_dialog = !this.show_dialog;
+      });
+    },
     get_move_level(move){
       for(let version of move.version_group_details){
         if(version.version_group.name == "sword-shield" && version.move_learn_method.name == "level-up"){
@@ -70,20 +79,9 @@ export default {
         }
       }
       return 0;
-    },
-    filter_moves(pokemon){
-      return pokemon.moves.filter((item) => {
-        let include = false;
-        for(let version of item.version_group_details){
-          if(version.version_group.name == "sword-shield" && version.move_learn_method.name == "level-up"){
-            include = true;
-          }
-        }
-        return include;
-      });
     }
   },
-
+  
   computed: {
     filtered_pokemons(){
       return this.pokemons.filter((item) => {
