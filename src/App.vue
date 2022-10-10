@@ -2,6 +2,24 @@
   <v-app>
     <v-container>
         <v-container>
+          <v-row>
+            <v-container>
+              <v-img
+                :src="require('../src/assets/pokedex.png')"
+                class="my-3"
+                contain
+                height="200"
+              />
+              <h1 class="text-center white--text mb-2" style="font-size: 5rem">
+                Pokedex
+              </h1>
+              <h1 class="text-center white--text mb-8">
+                Created by
+                <a class="red--text" href="https://github.com/vine96">Vine96</a>
+              </h1>
+            </v-container>
+          </v-row>
+
           <v-text-field 
           v-model="search"
           label="Pesquisar"
@@ -11,87 +29,23 @@
 
           <v-row>
             <v-col cols=2 v-for="pokemon in filtered_pokemons" :key="pokemon.name">
-              <v-card @click="show_pokemon(get_id(pokemon))">
-                <v-container>
-                  <v-row class="mx-0 d-flex justify-center align-center mt-2">
-                    <img width="100%" :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${get_id(pokemon)}.gif`" :alt="pokemon.name"/>
-                  </v-row>
-                  <h2 class="text-center mt-3">{{ get_name(pokemon) }}</h2>
-                </v-container>
-              </v-card>
+              <PokemonCard :pokemon="pokemon" @clicked="show_pokemon" />
             </v-col>
           </v-row>
         </v-container>
     </v-container>
-    <v-dialog v-model="dialog" max-width="800">
-      <v-card v-if="selected_pokemon" class="px-4">
-        <v-container>
-          <v-row class="d-flex align-center">
-            <v-col cols="3">
-              <img width="100%" :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${selected_pokemon.id}.gif`" :alt="selected_pokemon.name"/>
-            </v-col>
-            <v-col cols="6" class="text-center">
-              <h1>{{ get_name(selected_pokemon) }}</h1>
-              <v-chip label class="ml-2" v-for="type in selected_pokemon.types" :key="type.slot">
-                {{ type.type.name }}
-              </v-chip>
-              <v-divider class="my-4"></v-divider>
-              <v-chip label>
-                <span>Altura: {{ selected_pokemon.height * 2.54 }} cm</span>
-              </v-chip>
-              <v-chip label class="ml-2">
-                <span>Peso: {{ (selected_pokemon.weight * 0.453592).toFixed(2) }} kgs</span>
-              </v-chip>
-            </v-col>
-            <v-col cols="3" class="d-flex justify-end">
-              <img width="100%" :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/shiny/${selected_pokemon.id}.gif`" :alt="selected_pokemon.name"/>
-            </v-col>
-            <v-col cols="12" class="d-flex justify-center pt-0">
-              <v-chip label>
-                <span>Vida: {{ selected_pokemon.stats[0].base_stat  }}</span>
-              </v-chip>
-              <v-chip label class="ml-2">
-                <span>Ataque: {{ selected_pokemon.stats[1].base_stat  }}</span>
-              </v-chip>
-              <v-chip label class="ml-2">
-                <span>Defesa: {{ selected_pokemon.stats[2].base_stat  }}</span>
-              </v-chip>
-              <v-chip label class="ml-2">
-                <span>Velocidade: {{ selected_pokemon.stats[5].base_stat  }}</span>
-              </v-chip>
-            </v-col>
-          </v-row>
-          <h2>Moves</h2>
-          <v-simple-table>
-            <template v-slot:default>
-              <thead>
-                <tr>
-                  <th class="text-left">Level</th>
-                  <th class="text-left">Name</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in filter_moves(selected_pokemon)" :key="item.move.name">
-                  <td>{{ get_move_level(item) }}</td>
-                  <td>{{ item.move.name }}</td>
-                </tr>
-              </tbody>
-            </template>
-          </v-simple-table>
-        </v-container>
-      </v-card>
-    </v-dialog>
 
   </v-app>
 </template>
 
 <script>
 import axios from 'axios';
+import PokemonCard from './components/PokemonCard.vue';
 
 export default {
   name: 'App',
 
-  components: {},
+  components: { PokemonCard },
 
   data() {
     return {
@@ -109,18 +63,6 @@ export default {
   },
 
   methods: {
-    get_id(pokemon){
-      return Number(pokemon.url.split("/")[6]);
-    },
-    get_name(pokemon){
-      return pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
-    },
-    show_pokemon(id){
-      axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`).then((response) => {
-        this.selected_pokemon = response.data;
-        this.dialog = !this.dialog;
-      });
-    },
     get_move_level(move){
       for(let version of move.version_group_details){
         if(version.version_group.name == "sword-shield" && version.move_learn_method.name == "level-up"){
