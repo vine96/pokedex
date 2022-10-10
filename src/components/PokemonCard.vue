@@ -15,7 +15,7 @@ export default{
         pokemon: Object,
         flat: {
             type: Boolean,
-            default: false,
+            default: false
         }
     },
     methods: {

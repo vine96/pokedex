@@ -9,8 +9,8 @@
     </v-row>
 </template>
 <script>
-export default{
-    data(){
+export default {
+    data() {
         return{
             color: [
                 "red",
@@ -22,7 +22,7 @@ export default{
             ]
         };
     },
-    props:{
+    props: {
         pokemon: Object
     },
     methods:{

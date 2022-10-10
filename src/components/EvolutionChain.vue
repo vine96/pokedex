@@ -14,22 +14,22 @@
 import axios from "axios";
 import PokemonCard from "./PokemonCard.vue";
 
-export default{
-    components:{
+export default {
+    components: {
         PokemonCard
     },
-    data(){
+    data() {
         return{
             evolution: null
         };
     },
-    props:{
+    props: {
         pokemon: Object
     },
     mounted(){
         this.fetch_evolution();
     },
-    methods:{
+    methods: {
         fetch_evolution(){
             axios.get(`https://pokeapi.co/api/v2/pokemon-species/${this.pokemon.id}`)
             .then((response) => {
@@ -38,7 +38,7 @@ export default{
                 });
             });
         },
-        evolutions(){
+        evolutions() {
             let chain = [];
             let evolution = this.evolution;
             if(evolution.species){
@@ -63,7 +63,7 @@ export default{
             return chain;
         }
     },
-    watch:{
+    watch: {
         pokemon(){
             this.fetch_evolution();
         }

@@ -25,20 +25,6 @@
               <v-col cols="3" class="d-flex justify-end">
                 <img width="100%" :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/shiny/${selected_pokemon.id}.gif`" :alt="selected_pokemon.name"/>
               </v-col>
-              <!-- <v-col cols="12" class="d-flex justify-center pt-0">
-                <v-chip label>
-                  <span>Vida: {{ selected_pokemon.stats[0].base_stat  }}</span>
-                </v-chip>
-                <v-chip label class="ml-2">
-                  <span>Ataque: {{ selected_pokemon.stats[1].base_stat  }}</span>
-                </v-chip>
-                <v-chip label class="ml-2">
-                  <span>Defesa: {{ selected_pokemon.stats[2].base_stat  }}</span>
-                </v-chip>
-                <v-chip label class="ml-2">
-                  <span>Velocidade: {{ selected_pokemon.stats[5].base_stat  }}</span>
-                </v-chip>
-              </v-col> -->
             </v-row>
 
             <h2 class="mt-4">Stats</h2>
@@ -75,25 +61,10 @@
                     </v-simple-table>
                 </v-expansion-panel-content>
             </v-expansion-panels>
-            <!-- <v-simple-table>
-              <template v-slot:default>
-                <thead>
-                  <tr>
-                    <th class="text-left">Level</th>
-                    <th class="text-left">Name</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="item in filter_moves(selected_pokemon)" :key="item.move.name">
-                    <td>{{ get_move_level(item) }}</td>
-                    <td>{{ item.move.name }}</td>
-                  </tr>
-                </tbody>
-              </template>
-            </v-simple-table> -->
-
             <h2>Evolução</h2>
-            
+
+            <EvolutionChain :pokemon="selected_pokemon" />
+
           </v-container>
         </v-card>
       </v-dialog>
@@ -103,20 +74,81 @@
 import PokemonType from "./PokemonType.vue";
 import Stats from "./Stats.vue";
 import MoveMethodImage from "./MoveMethodImage.vue";
+import EvolutionChain from "./EvolutionChain.vue";
 
-export default{
-    components:{
+export default {
+    components: {
         PokemonType,
         Stats,
-        MoveMethodImage
+        MoveMethodImage,
+        EvolutionChain
     },
-    props:{
+    props: {
         show: Boolean,
         selected_pokemon: Object
     },
-    methods:{
+    methods: {
         get_name(pokemon){
             return pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
+        },
+        transform_move_name(name){
+            let response = "";
+            for(let part of name.split("-")){
+                response += part.charAt(0).toUpperCase() + part.slice(1) + " ";
+            }
+            return response;
+        }
+    },
+    computed: {
+        moves(){
+            let response = {"level-up": [], egg: [], machine: [], tutor: []};
+            for(let move of this.selected_pokemon.moves){
+                for(let details of move.version_group_details){
+                    if(details.version_group.name == "sword-shield"){
+                        response[details.move_learn_method.name].push({
+                            level: details.level_learned_at,
+                            method: details.move_learn_method.name,
+                            name: this.transform_move_name(move.move.name)
+                        });
+                        break;
+                    }
+                }
+            }
+
+            for(let move_type in response){
+                response[move_type].sort((a, b) => {
+                    let level_a = a.level;
+                    let level_b = b.level;
+
+                    if(level_a == 0){
+                        level_a = 1000;
+                    }
+
+                    if(level_b == 0){
+                        level_b = 1000;
+                    }
+
+                    if(level_a != level_b){
+                        if(level_a < level_b){
+                            return -1;
+                        }else{
+                            return 1;
+                        }
+                    }else{
+                        if(a.method < b.method){
+                            return -1;
+                        }else{
+                            return 1;
+                        }
+                    }
+                });
+            }
+            return response;
+        },
+    },
+    watch: {
+        show(){
+            this.$emit("update:show", this.show);
         }
     }
 }

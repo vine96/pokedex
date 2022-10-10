@@ -4,10 +4,10 @@
 
 <script>
 export default{
-    props:{
+    props: {
         type: String
     },
-    computed:{
+    computed: {
         name(){
             return this.type.charAt(0).toUpperCase() + this.type.slice(1);
         },
